@@ -47,7 +47,7 @@ Evaluated using RAGAS on 10 questions: 5 answerable from indexed data, 5 outside
 | Context Precision | 0.500 | 0.628 |
 | Context Recall | 0.800 | 0.800 |
 
-### Findings
+Findings
 
 **Faithfulness (0.893 unanswerable):** Fallback instruction works but 
 model occasionally adds unsupported suggestions (e.g. "refer to capital 
@@ -67,7 +67,7 @@ answerable question. Segment information exists in indexed data but
 ChromaDB probably returned wrong chunks. This is likely caused by chunking splitting 
 the segment description across chunk boundaries.
 
-### Limitations
+Limitations
 - Scores have run-to-run variance due to LLM-based evaluation
 - Unanswerable ground truths artificially influence recall scores
 - 100KB truncation excludes financial statements — revenue, capital 
@@ -136,7 +136,7 @@ Small chunks (256): retrieval is enhanced and precise, but more chunks passed to
 Medium chunks (512): worst of both worlds in this dataset — splits content across boundaries losing context and necessary overlap
 Large chunks (1024): less precise retrieval but richer context per chunk, this increases faithfulness
 
-*Final config: 1024/102* — prioritize faithfulness, which is the critical metric for a SEC filing assistant.
+Final config: 1024/102 — prioritize faithfulness, which is the critical metric for a SEC filing assistant.
 ---
 
 ### Known Limitations
