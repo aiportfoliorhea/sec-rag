@@ -76,7 +76,6 @@ the segment description across chunk boundaries. Will try to increase overlap to
 
 ### Phase 2 — LangGraph query rewriter, no reranking
 
-### Eval Scores
 | Metric | Answerable | Unanswerable | Overall
 |---|---|---|----|
 | Faithfulness | 0.800 | 0.920 | 0.860
@@ -102,7 +101,6 @@ Note: Answer Relevancy is 0.0 for unanswerable questions by design — the model
 
 ### Phase 3 — LangGraph query rewriter + Cohere reranking
 
-### Eval Scores
 | Metric | Before | After | Change |
 |---|---|---|---|
 | Faithfulness | 0.860 | 0.930 | +0.070 |
