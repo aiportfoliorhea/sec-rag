@@ -137,7 +137,6 @@ Medium chunks (512): worst of both worlds in this dataset — splits content acr
 Large chunks (1024): less precise retrieval but richer context per chunk, this increases faithfulness  
 
 > Final config: 1024/102 — prioritize faithfulness, which is the critical metric for a SEC filing assistant.
----
 
 Known Limitations
 
