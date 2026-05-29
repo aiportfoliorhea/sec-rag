@@ -60,13 +60,12 @@ This is a known RAGAS limitation on fallback responses, not a model failure.
 
 **Context Precision (0.50 answerable):** Retrieved chunks contain 
 significant irrelevant content. 500 token chunks are probably too large. This means relevant 
-information shares chunks with noise. Week 3 will test 256/512/1024 
-token sizes.
+information shares chunks with noise. 
 
 **Context Recall (0.0 — business segments):** Retrieval failure on an 
 answerable question. Segment information exists in indexed data but 
 ChromaDB probably returned wrong chunks. This is likely caused by chunking splitting 
-the segment description across chunk boundaries. Will try to increase overlap to 10% of chunk size.
+the segment description across chunk boundaries.
 
 ### Limitations
 - Scores have run-to-run variance due to LLM-based evaluation
