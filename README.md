@@ -82,7 +82,7 @@ Limitations
 | Context Precision | 0.533 | 0.500 | 0.517
 | Context Recall | 0.800 | 0.800 | 0.800
 
-### Per Question breakdown
+Per Question breakdown
 | Question | Faithfulness | Answer Relevancy | Context Precision | Context Recall | Answerable |
 |---|---|---|---|---|---|
 | Where is JPMorgan Chase headquartered? | 1.00 | 0.986 | 1.000 | 1.0 | Yes |
@@ -136,10 +136,10 @@ Small chunks (256): retrieval is enhanced and precise, but more chunks passed to
 Medium chunks (512): worst of both worlds in this dataset — splits content across boundaries losing context and necessary overlap
 Large chunks (1024): less precise retrieval but richer context per chunk, this increases faithfulness
 
-Final config: 1024/102 — prioritize faithfulness, which is the critical metric for a SEC filing assistant.
+> Final config: 1024/102 — prioritize faithfulness, which is the critical metric for a SEC filing assistant.
 ---
 
-### Known Limitations
+Known Limitations
 
 - RAGAS scores have run-to-run variance due to LLM-based evaluation
 - Unanswerable ground truths artificially suppress recall scores
