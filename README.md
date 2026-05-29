@@ -132,9 +132,9 @@ Q2 (business segments) continues to fail on both context precision and recall �
 
 Chunk Size Tradeoffs
 
-Small chunks (256): retrieval is enhanced and precise, but more chunks passed to LLM increases middle problem risk (performs worse if context is in the middle)
-Medium chunks (512): worst of both worlds in this dataset — splits content across boundaries losing context and necessary overlap
-Large chunks (1024): less precise retrieval but richer context per chunk, this increases faithfulness
+Small chunks (256): retrieval is enhanced and precise, but more chunks passed to LLM increases middle problem risk (performs worse if context is in the middle)  
+Medium chunks (512): worst of both worlds in this dataset — splits content across boundaries losing context and necessary overlap  
+Large chunks (1024): less precise retrieval but richer context per chunk, this increases faithfulness  
 
 > Final config: 1024/102 — prioritize faithfulness, which is the critical metric for a SEC filing assistant.
 ---
