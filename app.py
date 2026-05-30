@@ -25,7 +25,14 @@ with st.expander("Sample questions"):
 input = st.text_input("Type your question", key="input")
   
 if st.button("Ask"):
-    response, retrieved_docs, rewritten_query, validation_score = ask_loanbot(input)
+    if st.session_state.input.strip() == "":
+        st.warning("Please enter a question.")
+        st.stop()
+    try:
+        response, retrieved_docs, rewritten_query, validation_score = ask_loanbot(input)
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        st.stop()
     st.write(response)
     st.write("Agent validation score is:", validation_score)
     with st.expander("Retrieved Docs"):
