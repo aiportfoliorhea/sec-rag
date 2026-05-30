@@ -146,6 +146,12 @@ Known Limitations
 - Indexed excerpt is 100KB — financial statements (revenue, capital ratios, income) are not evaluable from this dataset
 - Business segments question fails on both precision and recall — likely a document coverage issue, not a retrieval issue
 
+
+### Phase 4 — Multi Agent validator node
+
+Added a validator agent (Claude) that scores how grounded the answer is in the retrieved chunks ranging from 0-1. If the score is less than 0.7 and retries <= 3, graph routes back to retrieve. Otherwise it ends. It is an important addition because a wrong or hallucinated figure has real consequences. The validator catches answers that aren't supported by the retrieved text before they reach the user.
+
+
 ## Setup
 
 ```bash
