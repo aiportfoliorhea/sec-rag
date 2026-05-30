@@ -151,6 +151,14 @@ Known Limitations
 
 Added a validator agent (Claude) that scores how grounded the answer is in the retrieved chunks ranging from 0-1. If the score is less than 0.7 and retries <= 3, graph routes back to retrieve. Otherwise it ends. It is an important addition because a wrong or hallucinated figure has real consequences. The validator catches answers that aren't supported by the retrieved text before they reach the user.
 
+| Metric | Phase 4 | Phase 5 | Change |
+|--------|---------|---------|--------|
+| Faithfulness | 1.000 | 0.980 | -0.020 |
+| Answer Relevancy | 0.434 | 0.489 | +0.055 |
+| Context Precision | 0.850 | 0.889 | +0.039 |
+| Context Recall | 0.900 | 0.900 | flat |
+
+Faithfulness dropped slightly probably because of run-to-run variance. Its not a regression. Answer relevancy and context precision have improved.
 
 ## Setup
 

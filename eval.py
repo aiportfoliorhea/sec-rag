@@ -53,7 +53,7 @@ answers = []
 contexts = []
 rag_graph = build_rag_graph()
 for question in test_questions:
-    result = rag_graph.invoke({"question": question})
+    result = rag_graph.invoke({"question": question, "retry_count": 0})
     contexts.append([doc.page_content for doc in result["retrieved_docs"]])
     answer = result["answer"]
     answers.append(answer)
