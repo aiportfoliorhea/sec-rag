@@ -31,4 +31,3 @@ if st.button("Ask"):
     with st.expander("Retrieved Docs"):
         st.write(retrieved_docs)
     st.write("Rewritten query:", rewritten_query)
-

@@ -2,4 +2,3 @@ chroma_db/
 venv/
 venv-eval/
 __pycache__/
-rag-pipeline.png
