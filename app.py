@@ -6,7 +6,7 @@ from retriever import load_vector_store
 client = Anthropic()
 rag_graph = build_rag_graph() 
 
-def ask_loanbot(question):
+def ask_sec_rag(question):
     result = rag_graph.invoke({"question": question, "retry_count": 0})
     return result["answer"], result["retrieved_docs"], result["rewritten_query"], result["validation_score"]
 
@@ -29,7 +29,7 @@ if st.button("Ask"):
         st.warning("Please enter a question.")
         st.stop()
     try:
-        response, retrieved_docs, rewritten_query, validation_score = ask_loanbot(input)
+        response, retrieved_docs, rewritten_query, validation_score = ask_sec_rag(input)
     except Exception as e:
         st.error(f"An error occurred: {e}")
         st.stop()
