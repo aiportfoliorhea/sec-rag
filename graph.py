@@ -1,9 +1,8 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict
-from anthropic import Anthropic
 from retriever import load_vector_store
-import cohere
 import os
+from client import anthropic_client, cohere_client
 
 # 1. Define state
 class SecRagState(TypedDict):
@@ -16,9 +15,7 @@ class SecRagState(TypedDict):
 
 # 2. Query rewriter node
 def rewrite_query(state: SecRagState) -> SecRagState:
-    client = Anthropic()
-    
-    response = client.messages.create(
+    response = anthropic_client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=256,
         messages=[{
@@ -34,7 +31,6 @@ Question: {state['question']}"""
 
 # 3. Retrieval node
 def retrieve(state: SecRagState) -> SecRagState:
-    cohere_client = cohere.Client(api_key=os.environ["COHERE_API_KEY"])
     retriever = load_vector_store()
     docs = retriever.invoke(state["rewritten_query"])
     cohere_response = cohere_client.rerank(top_n=3, documents=[doc.page_content for doc in docs], query=state["question"])
@@ -45,8 +41,7 @@ def retrieve(state: SecRagState) -> SecRagState:
 # 4. Answer node
 def generate_answer(state: SecRagState) -> SecRagState:
     context = "\n\n".join([d.page_content for d in state["retrieved_docs"]])
-    client = Anthropic()
-    response = client.messages.create(
+    response = anthropic_client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=512,
         system="Act as a SEC filing assistant. Answer the question using only the context provided. If the answer is not in the context, say 'I don't have that information in the document'",
@@ -60,9 +55,8 @@ def generate_answer(state: SecRagState) -> SecRagState:
 
 # 5. validate faithfulness
 def validate_answer(state: SecRagState) -> SecRagState:
-    client = Anthropic()
     state["retry_count"] += 1
-    response = client.messages.create(
+    response = anthropic_client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=512,
         system="Act as a SEC filing assistant. Check if the given answer is present or is derived from the given Context. Your job is evaluate the faithfulness of this answer through validation score ranging from 0-1. If the context does not contain sufficient evidence for the answer indicate that with a low validation score. Return the score only, do not add any text to it.",
