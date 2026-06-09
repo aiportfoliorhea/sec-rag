@@ -30,7 +30,7 @@ A retrieval-augmented generation system for querying JPMorgan Chase's 10-K SEC f
 
 ## Architecture
 
-![RAG Pipeline](./rag_pipeline.png)
+![RAG Pipeline](./rag_pipeline.svg)
 
 ## Evaluation
 
