@@ -29,12 +29,15 @@ if st.button("Ask"):
         st.warning("Please enter a question.")
         st.stop()
     try:
-        response, retrieved_docs, rewritten_query, validation_score = ask_sec_rag(input)
+        with st.spinner("Thinking..."):
+            response, retrieved_docs, rewritten_query, validation_score = ask_sec_rag(input)
     except Exception as e:
         st.error(f"An error occurred: {e}")
         st.stop()
     st.write(response)
-    st.write("Agent validation score is:", validation_score)
     with st.expander("Retrieved Docs"):
-        st.write(retrieved_docs)
+        for i, doc in enumerate(retrieved_docs):
+            st.markdown(f"**Chunk {i+1}**")
+            st.write(doc.page_content)
+        st.write("Agent validation score is:", validation_score)
     st.write("Rewritten query:", rewritten_query)
