@@ -3,3 +3,4 @@ venv/
 venv-eval/
 __pycache__/
 chroma_db/
+.env

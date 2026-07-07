@@ -2,7 +2,15 @@ from langgraph.graph import StateGraph, END
 from typing import TypedDict
 from retriever import load_vector_store
 import os
-from client import anthropic_client, cohere_client
+from client import cohere_client
+from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import HumanMessage, SystemMessage
+from dotenv import load_dotenv
+
+load_dotenv()
+
+llm = ChatAnthropic(model="claude-sonnet-4-6", max_tokens=512)
+llm_short = ChatAnthropic(model="claude-sonnet-4-6", max_tokens=256)
 
 # 1. Define state
 class SecRagState(TypedDict):
@@ -15,18 +23,10 @@ class SecRagState(TypedDict):
 
 # 2. Query rewriter node
 def rewrite_query(state: SecRagState) -> SecRagState:
-    response = anthropic_client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=256,
-        messages=[{
-            "role": "user",
-            "content": f"""Rewrite this question to be a better search query for retrieving relevant chunks from a JPMorgan 10-K SEC filing. 
-Return only the rewritten query, nothing else.
-
-Question: {state['question']}"""
-        }]
-    )
-    state["rewritten_query"] = response.content[0].text.strip()
+    response = llm_short.invoke([
+        HumanMessage(content=f"""Rewrite this question to be a better search query for retrieving relevant chunks from a JPMorgan 10-K SEC filing. 
+                                 Return only the rewritten query, nothing else. Question: {state['question']}""")])
+    state["rewritten_query"] = response.content.strip()
     return state
 
 # 3. Retrieval node
@@ -41,33 +41,22 @@ def retrieve(state: SecRagState) -> SecRagState:
 # 4. Answer node
 def generate_answer(state: SecRagState) -> SecRagState:
     context = "\n\n".join([d.page_content for d in state["retrieved_docs"]])
-    response = anthropic_client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=512,
-        system="Act as a SEC filing assistant. Answer the question using only the context provided. If the answer is not in the context, say 'I don't have that information in the document'",
-        messages=[{
-            "role": "user",
-            "content": f"Context:\n{context}\n\nQuestion: {state['question']}\nAnswer:"
-        }]
-    )
-    state["answer"] = response.content[0].text.strip()
+    response = llm.invoke([
+        SystemMessage(content="Act as a SEC filing assistant. Answer the question using only the context provided. If the answer is not in the context, say 'I don't have that information in the document'"),
+        HumanMessage(content=f"Context:\n{context}\n\nQuestion: {state['question']}\nAnswer:")
+    ])
+    state["answer"] = response.content.strip()
     return state
 
 # 5. validate faithfulness
 def validate_answer(state: SecRagState) -> SecRagState:
     state["retry_count"] += 1
-    response = anthropic_client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=512,
-        system="Act as a SEC filing assistant. Check if the given answer is present or is derived from the given Context. Your job is evaluate the faithfulness of this answer through validation score ranging from 0-1. If the context does not contain sufficient evidence for the answer indicate that with a low validation score. Return the score only, do not add any text to it.",
-        messages=[{
-            "role": "user",
-            "content": f"Answer:\n{state['answer']}\n\nContext: {state['retrieved_docs']}"
-
-        }]
-    )
+    response = llm.invoke([
+        SystemMessage(content="Act as a SEC filing assistant. Check if the given answer is present or is derived from the given Context. Your job is evaluate the faithfulness of this answer through validation score ranging from 0-1. If the context does not contain sufficient evidence for the answer indicate that with a low validation score. Return the score only, do not add any text to it."),
+        HumanMessage(content=f"Answer:\n{state['answer']}\n\nContext: {state['retrieved_docs']}")
+    ])
     try:
-        state["validation_score"] = float(response.content[0].text.strip())
+        state["validation_score"] = float(response.content.strip())
     except:
         state["validation_score"] = 0.6
     return state
