@@ -1,13 +1,10 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict
 from retriever import load_vector_store
-import os
 from client import cohere_client
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
-from dotenv import load_dotenv
 
-load_dotenv()
 
 llm = ChatAnthropic(model="claude-sonnet-4-6", max_tokens=512)
 llm_short = ChatAnthropic(model="claude-sonnet-4-6", max_tokens=256)

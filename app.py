@@ -1,9 +1,7 @@
-from anthropic import Anthropic
+
 import streamlit as st
 from graph import build_rag_graph
-from retriever import load_vector_store
 
-client = Anthropic()
 rag_graph = build_rag_graph() 
 
 def ask_sec_rag(question):
