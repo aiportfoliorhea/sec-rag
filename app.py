@@ -1,11 +1,13 @@
 
 import streamlit as st
 from graph import build_rag_graph
+from tracer import write_trace
 
 rag_graph = build_rag_graph() 
 
 def ask_sec_rag(question):
     result = rag_graph.invoke({"question": question, "retry_count": 0})
+    write_trace(result.get("trace", {}), question=result["question"], final_state=result)
     return result["answer"], result["retrieved_docs"], result["rewritten_query"], result["validation_score"]
 
 
