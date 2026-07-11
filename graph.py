@@ -49,7 +49,10 @@ def generate_answer(state: SecRagState) -> SecRagState:
     context = "\n\n".join([d.page_content for d in state["retrieved_docs"]])
     with timed(trace, "generate_answer"):
         response = llm.invoke([
-        SystemMessage(content="Act as a SEC filing assistant. Answer the question using only the context provided. If the answer is not in the context, say 'I don't have that information in the document'"),
+        SystemMessage(content="Act as a SEC filing assistant. Answer directly and concisely. Do NOT preface your answer with meta-commentary "
+                                "such as 'Based on the context provided', 'According to the document', or "
+                                "'Based on the context'. State the answer itself. If the context does not contain "
+                                "the answer, reply exactly: \"I don't have that information in the document.\""),
         HumanMessage(content=f"Context:\n{context}\n\nQuestion: {state['question']}\nAnswer:")
         ])
     state["answer"] = response.content.strip()
