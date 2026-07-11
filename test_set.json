@@ -1,0 +1,12 @@
+[
+  {"question": "Where is JPMorgan Chase headquartered?", "answerable": true},
+  {"question": "What is JPMorgan Chase's ticker symbol and on which exchange does it trade?", "answerable": true},
+  {"question": "What are JPMorgan Chase's three reportable business segments?", "answerable": true},
+  {"question": "How many employees does JPMorgan Chase have globally?", "answerable": true},
+  {"question": "What were JPMorgan Chase's total assets as of December 31, 2025?", "answerable": true},
+  {"question": "What is JPMorgan Chase's net interest income for 2025?", "answerable": false},
+  {"question": "What is JPMorgan Chase's CET1 capital ratio?", "answerable": false},
+  {"question": "Who is the CEO of JPMorgan Chase?", "answerable": false},
+  {"question": "What is JPMorgan Chase's total revenue for 2025?", "answerable": false},
+  {"question": "What is JPMorgan Chase's return on equity?", "answerable": false}
+]

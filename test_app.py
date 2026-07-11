@@ -2,7 +2,7 @@ from graph import build_rag_graph
 
 def test_pipeline():
     graph = build_rag_graph()
-    result = graph.invoke({"question": "Where is JPMorgan Chase headquartered?"})
+    result = graph.invoke({"question": "Where is JPMorgan Chase headquartered?", "retry_count": 0})
     
     assert result["answer"] is not None
     assert len(result["retrieved_docs"]) > 0

@@ -60,10 +60,11 @@ def generate_answer(state: SecRagState) -> SecRagState:
 def validate_answer(state: SecRagState) -> SecRagState:
     trace = state["trace"] 
     state["retry_count"] += 1
+    context = "\n\n".join(d.page_content for d in state["retrieved_docs"])  
     with timed(trace, "validate_answer"):
         response = llm.invoke([
             SystemMessage(content="Act as a SEC filing assistant. Check if the given answer is present or is derived from the given Context. Your job is evaluate the faithfulness of this answer through validation score ranging from 0-1. If the context does not contain sufficient evidence for the answer indicate that with a low validation score. Return the score only, do not add any text to it."),
-            HumanMessage(content=f"Answer:\n{state['answer']}\n\nContext: {state['retrieved_docs']}")
+            HumanMessage(content=f"Answer:\n{state['answer']}\n\nContext: {context}")
         ])
     try:
         state["validation_score"] = float(response.content.strip())
