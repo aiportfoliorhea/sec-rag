@@ -1,6 +1,20 @@
 import json
 import math
 import asyncio
+import math
+import asyncio
+
+import sys, types
+# ragas <=0.4.3 hard-imports langchain_community.chat_models.vertexai,
+# removed in the langchain 1.x community restructure (ragas #2745).
+# Anthropic-only -> ChatVertexAI never instantiated. Stub it.
+_m = "langchain_community.chat_models.vertexai"
+if _m not in sys.modules:
+    _stub = types.ModuleType(_m)
+    class ChatVertexAI: pass
+    _stub.ChatVertexAI = ChatVertexAI
+    sys.modules[_m] = _stub
+
 from graph import build_rag_graph
 from ragas.dataset_schema import SingleTurnSample
 from ragas.metrics import Faithfulness
@@ -29,7 +43,7 @@ async def run_eval(test_set):
     for case in test_set:
         state = graph.invoke({
             "question": case["question"],
-            "retry_count": 0,           # the seed trap — loader must set it
+            "retry_count": 0,           
         })
         contexts = [d.page_content for d in state["retrieved_docs"]]
         score = await score_faithfulness(
@@ -62,3 +76,9 @@ if __name__ == "__main__":
     ts = load_test_set()
     out = asyncio.run(run_eval(ts))
     print(f"Ran {len(out)} cases")
+    print("\n--- per question ---")
+    for r in out:
+        tag = "ANS  " if r["answerable"] else "unans"
+        preview = r["answer"].splitlines()[0][:70] if r["answer"] else ""
+        print(f"[{tag}] {r['faithfulness']:.3f}  {r['question'][:55]}  | {preview}")
+    gate(out)
