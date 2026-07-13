@@ -9,13 +9,13 @@ on:
 jobs:
   eval:
     runs-on: ubuntu-latest
-    timeout-minutes: 15          # LLM calls can hang; don't burn Actions minutes
+    timeout-minutes: 15          # LLM calls can hang
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"   # <-- SET to your frozen version (run `python --version` in your venv)
+          python-version: "3.11.15"
           cache: pip
 
       - name: Install pinned deps
