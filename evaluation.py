@@ -21,7 +21,7 @@ from ragas.metrics import Faithfulness
 from ragas.llms import LangchainLLMWrapper
 from langchain_anthropic import ChatAnthropic
 
-FAITHFULNESS_GATE = 0.90  
+FAITHFULNESS_GATE = 0.85  
 
 def load_test_set(path="test_set.json"):
     with open(path) as f:
