@@ -1,4 +1,4 @@
-from graph import build_rag_graph
+from src.graph import build_rag_graph
 
 def test_pipeline():
     graph = build_rag_graph()

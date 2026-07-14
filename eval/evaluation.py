@@ -15,7 +15,7 @@ if _m not in sys.modules:
     _stub.ChatVertexAI = ChatVertexAI
     sys.modules[_m] = _stub
 
-from graph import build_rag_graph
+from src.graph import build_rag_graph
 from ragas.dataset_schema import SingleTurnSample
 from ragas.metrics import Faithfulness
 from ragas.llms import LangchainLLMWrapper

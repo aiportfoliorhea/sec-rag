@@ -1,5 +1,5 @@
 from mcp.server.fastmcp import FastMCP
-from graph import build_rag_graph
+from src.graph import build_rag_graph
 
 sec_rag = FastMCP("sec_rag")
 

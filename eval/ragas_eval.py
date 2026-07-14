@@ -1,7 +1,7 @@
 import os
 
-from constants import CHUNK_OVERLAP, CHUNK_SIZE
-from graph import build_rag_graph
+from src.constants import CHUNK_OVERLAP, CHUNK_SIZE
+from src.graph import build_rag_graph
 from ragas import evaluate
 from ragas.metrics import (
     faithfulness,
