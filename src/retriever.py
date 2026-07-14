@@ -6,14 +6,14 @@ from langchain_core.documents import Document
 from src.constants import CHUNK_SIZE, CHUNK_OVERLAP
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # src/ -> root
 _retriever_cache = None
 def load_vector_store():
     global _retriever_cache
     if _retriever_cache is not None:
         return _retriever_cache
     
-    with open(os.path.join(BASE_DIR, "jpm-10K-small-clean.txt"), "r")  as f:
+    with open(os.path.join(REPO_ROOT, "jpm-10K-small-clean.txt"), "r") as f:
         text = f.read()
     splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
     chunks = splitter.split_text(text)
