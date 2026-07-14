@@ -1,6 +1,6 @@
 
 import streamlit as st
-from graph import build_rag_graph
+from src.graph import build_rag_graph
 from tracer import write_trace
 
 rag_graph = build_rag_graph() 

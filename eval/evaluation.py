@@ -15,16 +15,19 @@ if _m not in sys.modules:
     _stub.ChatVertexAI = ChatVertexAI
     sys.modules[_m] = _stub
 
-from graph import build_rag_graph
+from src.graph import build_rag_graph
 from ragas.dataset_schema import SingleTurnSample
 from ragas.metrics import Faithfulness
 from ragas.llms import LangchainLLMWrapper
 from langchain_anthropic import ChatAnthropic
 
+from pathlib import Path
+REPO_ROOT = Path(__file__).resolve().parent.parent 
+
 FAITHFULNESS_GATE = 0.85  
 
 def load_test_set(path="test_set.json"):
-    with open(path) as f:
+    with open(REPO_ROOT / "test" / path) as f:
         return json.load(f)
     
 async def score_faithfulness(scorer, question, answer, contexts):
