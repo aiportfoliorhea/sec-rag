@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1,
+    "kind": "paraphrase",
+    "cos": 0.789,
+    "judge": true,
+    "label": "HIT",
+    "correct": true,
+    "ms": 1236,
+    "raw": "yes."
+  },
+  {
+    "id": 2,
+    "kind": "paraphrase",
+    "cos": 0.747,
+    "judge": false,
+    "label": "HIT",
+    "correct": false,
+    "ms": 658,
+    "raw": "no."
+  },
+  {
+    "id": 3,
+    "kind": "paraphrase",
+    "cos": 0.854,
+    "judge": false,
+    "label": "HIT",
+    "correct": false,
+    "ms": 843,
+    "raw": "no."
+  },
+  {
+    "id": 4,
+    "kind": "paraphrase",
+    "cos": 0.865,
+    "judge": true,
+    "label": "HIT",
+    "correct": true,
+    "ms": 1734,
+    "raw": "yes."
+  },
+  {
+    "id": 5,
+    "kind": "paraphrase",
+    "cos": 0.8,
+    "judge": false,
+    "label": "HIT",
+    "correct": false,
+    "ms": 784,
+    "raw": "no."
+  },
+  {
+    "id": 6,
+    "kind": "paraphrase",
+    "cos": 0.77,
+    "judge": true,
+    "label": "HIT",
+    "correct": true,
+    "ms": 816,
+    "raw": "yes."
+  },
+  {
+    "id": 7,
+    "kind": "entity_role_swap",
+    "cos": 0.902,
+    "judge": false,
+    "label": "MISS",
+    "correct": true,
+    "ms": 696,
+    "raw": "no."
+  },
+  {
+    "id": 8,
+    "kind": "entity_role_swap",
+    "cos": 0.89,
+    "judge": false,
+    "label": "MISS",
+    "correct": true,
+    "ms": 610,
+    "raw": "no."
+  },
+  {
+    "id": 9,
+    "kind": "risk_type_swap",
+    "cos": 0.89,
+    "judge": false,
+    "label": "MISS",
+    "correct": true,
+    "ms": 744,
+    "raw": "no."
+  },
+  {
+    "id": 10,
+    "kind": "risk_type_swap",
+    "cos": 0.699,
+    "judge": false,
+    "label": "MISS",
+    "correct": true,
+    "ms": 1442,
+    "raw": "no."
+  },
+  {
+    "id": 11,
+    "kind": "risk_type_swap",
+    "cos": 0.815,
+    "judge": false,
+    "label": "MISS",
+    "correct": true,
+    "ms": 525,
+    "raw": "no."
+  },
+  {
+    "id": 12,
+    "kind": "cause_vs_consequence",
+    "cos": 0.787,
+    "judge": false,
+    "label": "MISS",
+    "correct": true,
+    "ms": 574,
+    "raw": "no."
+  },
+  {
+    "id": 13,
+    "kind": "scope_shift",
+    "cos": 0.801,
+    "judge": false,
+    "label": "MISS",
+    "correct": true,
+    "ms": 1177,
+    "raw": "no."
+  },
+  {
+    "id": 14,
+    "kind": "hard_paraphrase",
+    "cos": 0.635,
+    "judge": false,
+    "label": "HIT",
+    "correct": false,
+    "ms": 541,
+    "raw": "no."
+  }
+]

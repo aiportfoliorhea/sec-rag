@@ -1,0 +1,49 @@
+# scripts/judge_eval.py
+import json, time
+from sentence_transformers import SentenceTransformer
+from src.semantic_cache import SemanticCache
+from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import HumanMessage
+from test.calibration_set import test_set
+
+COS_T = 0.60                      # BELOW #14's bge score (0.635)
+embedder = SentenceTransformer("BAAI/bge-base-en-v1.5")
+llm = ChatAnthropic(model="claude-haiku-4-5", max_tokens=5, temperature=0)
+
+PROMPT = ("Would the same answer serve both questions? Answer yes or no only.\n\n"
+          "Question A: {a}\nQuestion B: {b}")
+
+def judge(q1, q2):
+    t0 = time.perf_counter()
+    r = llm.invoke([HumanMessage(content=PROMPT.format(a=q1, b=q2))])
+    ms = (time.perf_counter() - t0) * 1000
+    txt = r.content.strip().lower()
+    return txt.startswith("y"), ms, txt
+
+rows = []
+for p in test_set["pairs"]:
+    cos = float(SemanticCache._cosine(embedder.encode(p["q1"]),
+                                      embedder.encode(p["q2"])))
+    if cos < COS_T:
+        verdict, ms, raw = False, 0.0, "(gated)"
+    else:
+        verdict, ms, raw = judge(p["q1"], p["q2"])
+
+    truth = (p["label"] == "HIT")
+    rows.append({"id": p["id"], "kind": p["kind"], "cos": round(cos, 3),
+                 "judge": verdict, "label": p["label"],
+                 "correct": verdict == truth, "ms": round(ms), "raw": raw})
+
+json.dump(rows, open("result/judge_eval.json", "w"), indent=2)
+
+for r in rows:
+    print(f"{r['id']:<4}{r['cos']:<8}{str(r['judge']):<7}{r['label']:<7}"
+          f"{'Yay' if r['correct'] else 'Nay':<4}{r['ms']:<6}{r['kind']}")
+
+lats = sorted(r["ms"] for r in rows if r["ms"] > 0)
+fh = sum(1 for r in rows if r["judge"] and r["label"] == "MISS")   # false hits
+fm = sum(1 for r in rows if not r["judge"] and r["label"] == "HIT") # false misses
+print(f"\n{sum(r['correct'] for r in rows)}/14 correct | "
+      f"false-hits {fh}/8 | false-misses {fm}/6 | "
+      f"gated {sum(1 for r in rows if r['raw']=='(gated)')}/14 | "
+      f"p50 {lats[len(lats)//2] if lats else 0}ms")
