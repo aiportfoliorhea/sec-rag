@@ -68,7 +68,7 @@ Evaluated with RAGAS on 10 questions: 5 answerable from the indexed excerpt, 5 o
 - **Context Precision (0.50 answerable):** Retrieved chunks carry significant irrelevant content. 500-token chunks are likely too large, so relevant information shares a chunk with noise.
 - **Context Recall (segments question):** Retrieval failure on an answerable question — segment information exists in the indexed data but the wrong chunks were returned, likely because chunking split the segment description across boundaries.
 
-### Phase 2 — LangGraph query rewriter, no reranking
+### Phase 2 - LangGraph query rewriter, no reranking
 
 | Metric | Answerable | Unanswerable | Overall |
 |---|---|---|----|
@@ -127,7 +127,7 @@ The business-segments question still fails on both context precision and recall 
 
 > **Final config: 1024/102** — prioritizing faithfulness, the critical metric for a SEC-filing assistant.
 
-### Phase 5 — Validator node with conditional re-retrieval
+### Phase 5 - Validator node with conditional re-retrieval
 
 Added a validator node (Claude) that scores how grounded the answer is in the retrieved chunks (0–1). If the score is below 0.7 and retries ≤ 3, the graph routes back to retrieval; otherwise it terminates. This matters because a hallucinated figure in a financial-filing assistant has real consequences — the validator catches unsupported answers before they reach the user.
 
@@ -142,7 +142,7 @@ The small faithfulness dip is within run-to-run variance, not a regression. Answ
 
 ---
 
-## Semantic cache — evaluation finding (not a shipped optimization)
+## Semantic cache - evaluation finding (not a shipped optimization)
 
 I prototyped a semantic cache over final answers (brute-force cosine similarity against an in-memory store, serving a cached answer when max similarity ≥ threshold) and, rather than assume it worked, built an **LLM-judge harness** over a labeled calibration set of query pairs to test whether cache "hits" are actually *answer-equivalent*.
 
