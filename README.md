@@ -19,14 +19,14 @@ A retrieval-augmented generation system for querying JPMorgan Chase's 10-K SEC f
 ## Stack
 
 - **LLM:** Claude (Anthropic)
-- **Orchestration:** LangGraph — query rewriting, retrieval, generation, and validation nodes with conditional re-retrieval routing
+- **Orchestration:** LangGraph - query rewriting, retrieval, generation, and validation nodes with conditional re-retrieval routing
 - **Reranking:** Cohere
 - **Vector store:** ChromaDB
 - **Embeddings:** Sentence Transformers (HuggingFace)
 - **Evaluation:** RAGAS over a labeled answerable/unanswerable set
 - **Tool interface:** MCP (Model Context Protocol) — the query path is exposed as an MCP tool
 - **Observability:** LangSmith tracing + custom per-node logging (latency, token cost, rerank scores)
-- **CI:** GitHub Actions — evaluation gate on Faithfulness
+- **CI:** GitHub Actions - evaluation gate on Faithfulness
 - **Frontend:** Streamlit
 - **Deployment:** HuggingFace Spaces (Docker)
 
