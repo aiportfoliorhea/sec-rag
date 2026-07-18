@@ -50,7 +50,7 @@ The retrieval-and-answer path is exposed over the Model Context Protocol, so an 
 
 Evaluated with RAGAS on 10 questions: 5 answerable from the indexed excerpt, 5 outside it. Each phase isolates one change so its effect on the metrics is attributable.
 
-> **Reading the metrics:** Answer Relevancy is 0.0 for unanswerable questions *by design* — the model correctly responds "I don't have that information," which RAGAS scores as irrelevant. This drags the overall average down regardless of retrieval quality, so answerable-subset numbers are the meaningful signal for retrieval changes.
+> **Reading the metrics:** Answer Relevancy is 0.0 for unanswerable questions *by design* - the model correctly responds "I don't have that information," which RAGAS scores as irrelevant. This drags the overall average down regardless of retrieval quality, so answerable-subset numbers are the meaningful signal for retrieval changes.
 
 ### Phase 1 — No query rewriting, no reranking
 
@@ -92,7 +92,7 @@ Evaluated with RAGAS on 10 questions: 5 answerable from the indexed excerpt, 5 o
 | What is JPMorgan Chase's total revenue for 2025? | 1.00 | 0.000 | 0.417 | 1.0 | No |
 | What is JPMorgan Chase's return on equity? | 0.60 | 0.000 | 0.639 | 1.0 | No |
 
-### Phase 3 — Query rewriter + Cohere reranking
+### Phase 3 - Query rewriter + Cohere reranking
 
 | Metric | Before | After | Change |
 |---|---|---|---|
@@ -101,7 +101,7 @@ Evaluated with RAGAS on 10 questions: 5 answerable from the indexed excerpt, 5 o
 | Context Precision | 0.517 | 0.642 | +0.125 |
 | Context Recall | 0.800 | 0.800 | flat |
 
-Reranking improved context precision (+0.125) and faithfulness (+0.070): the chunks passed to Claude became more relevant and answers stayed closer to the source. Context recall was unaffected — reranking reorders existing chunks but retrieves no new ones, so coverage is unchanged. Answer relevancy stayed flat (answerable: 0.771 → 0.773); the unanswerable questions continue to score 0 by design.
+Reranking improved context precision (+0.125) and faithfulness (+0.070): the chunks passed to Claude became more relevant and answers stayed closer to the source. Context recall was unaffected - reranking reorders existing chunks but retrieves no new ones, so coverage is unchanged. Answer relevancy stayed flat (answerable: 0.771 to 0.773); the unanswerable questions continue to score 0 by design.
 
 The business-segments question still fails on both context precision and recall — likely a document-coverage issue (the content may not be in the indexed excerpt) rather than a retrieval issue. Still to test: varying chunk size and overlap.
 
@@ -110,7 +110,7 @@ The business-segments question still fails on both context precision and recall 
 | Yes | 0.900 | 0.773 | 0.700 | 0.800 |
 | No | 0.960 | 0.000 | 0.583 | 0.800 |
 
-### Phase 4 — Chunk-size experiment
+### Phase 4 - Chunk-size experiment
 
 | Metric | Baseline (500/50) | 256/26 | 512/51 | 1024/102 |
 |---|---|---|---|---|
@@ -148,7 +148,7 @@ I prototyped a semantic cache over final answers (brute-force cosine similarity 
 
 **The finding:** embedding similarity captures **topical overlap, not answer-equivalence.** Across every embedding model tested, a directional entity-role swap (a pair with the same entities but a reversed relationship, and therefore a *different* correct answer) ranked as the *most* similar pair, while the hardest genuine paraphrase ranked *least* similar. A similarity-only cache would therefore serve confidently wrong answers on exactly the pairs it's most sure about.
 
-At the calibration threshold, the gate admitted essentially no true-paraphrase pairs, so the naive cost/latency case for the cache does not hold on this corpus. The cache is retained here as an evaluation study — a demonstration that a plausible optimization has to be validated before it's trusted — not as a claimed performance win.
+At the calibration threshold, the gate admitted essentially no true-paraphrase pairs, so the naive cost/latency case for the cache does not hold on this corpus. The cache is retained here as an evaluation study - a demonstration that a plausible optimization has to be validated before it's trusted — not as a claimed performance win.
 
 ---
 
@@ -177,7 +177,7 @@ streamlit run app.py
 
 - Python 3.11 (via Dockerfile — `runtime.txt` is ignored by HF Spaces)
 - Secrets: `ANTHROPIC_API_KEY`, `COHERE_API_KEY` set as HF Space secrets
-- Vector store builds at runtime — `chroma_db/` is not committed
+- Vector store builds at runtime - `chroma_db/` is not committed
 
 ---
 
@@ -185,5 +185,5 @@ streamlit run app.py
 
 - RAGAS scores have run-to-run variance due to LLM-based evaluation.
 - Unanswerable ground truths artificially suppress recall and pull the overall averages down; answerable-subset numbers are the meaningful signal.
-- The indexed excerpt is ~100KB — financial statements (revenue, capital ratios, income) are truncated out and not evaluable from this dataset.
+- The indexed excerpt is ~100KB - financial statements (revenue, capital ratios, income) are truncated out and not evaluable from this dataset.
 - The business-segments question fails on both precision and recall, likely a document-coverage issue rather than a retrieval one.
