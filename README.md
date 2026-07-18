@@ -150,8 +150,6 @@ I prototyped a semantic cache over final answers (brute-force cosine similarity 
 
 At the calibration threshold, the gate admitted essentially no true-paraphrase pairs, so the naive cost/latency case for the cache does not hold on this corpus. The cache is retained here as an evaluation study — a demonstration that a plausible optimization has to be validated before it's trusted — not as a claimed performance win.
 
-> These cache figures come from a separate calibration experiment; confirm the exact numbers against your experiment output before treating them as final.
-
 ---
 
 ## CI/CD & observability
