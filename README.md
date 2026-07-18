@@ -8,7 +8,7 @@ app_file: app.py
 pinned: false
 ---
 
-# SEC RAG — Evaluation-First RAG over JPMorgan 10-K Filings
+# SEC RAG - Evaluation-First RAG over JPMorgan 10-K Filings
 
 A retrieval-augmented generation system for querying JPMorgan Chase's 10-K SEC filing, built around an explicit evaluation loop: every retrieval and prompting change is measured against a labeled question set with RAGAS before it ships. Built with LangGraph, Cohere reranking, ChromaDB, and Claude, and exposed as an MCP tool for agentic use.
 
@@ -24,7 +24,7 @@ A retrieval-augmented generation system for querying JPMorgan Chase's 10-K SEC f
 - **Vector store:** ChromaDB
 - **Embeddings:** Sentence Transformers (HuggingFace)
 - **Evaluation:** RAGAS over a labeled answerable/unanswerable set
-- **Tool interface:** MCP (Model Context Protocol) — the query path is exposed as an MCP tool
+- **Tool interface:** MCP (Model Context Protocol) - the query path is exposed as an MCP tool
 - **Observability:** LangSmith tracing + custom per-node logging (latency, token cost, rerank scores)
 - **CI:** GitHub Actions - evaluation gate on Faithfulness
 - **Frontend:** Streamlit
