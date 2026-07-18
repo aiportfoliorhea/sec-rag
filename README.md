@@ -133,7 +133,7 @@ Added a validator node (Claude) that scores how grounded the answer is in the re
 
 | Metric | Phase 4 | Phase 5 | Change |
 |--------|---------|---------|--------|
-| Faithfulness | 1.000 | 0.980 | −0.020 |
+| Faithfulness | 1.000 | 0.980 | -0.020 |
 | Answer Relevancy | 0.434 | 0.489 | +0.055 |
 | Context Precision | 0.850 | 0.889 | +0.039 |
 | Context Recall | 0.900 | 0.900 | flat |
