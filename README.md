@@ -8,9 +8,9 @@ app_file: app.py
 pinned: false
 ---
 
-# SEC RAG — JPMorgan 10-K QA System
+# SEC RAG — Evaluation-First RAG over JPMorgan 10-K Filings
 
-A retrieval-augmented generation system for querying JPMorgan Chase's 10-K SEC filing. Built with LangGraph, Cohere reranking, ChromaDB, and Claude.
+A retrieval-augmented generation system for querying JPMorgan Chase's 10-K SEC filing, built around an explicit evaluation loop: every retrieval and prompting change is measured against a labeled question set with RAGAS before it ships. Built with LangGraph, Cohere reranking, ChromaDB, and Claude, and exposed as an MCP tool for agentic use.
 
 **Live demo:** https://huggingface.co/spaces/rheaupadhyay/sec-rag
 
@@ -19,10 +19,14 @@ A retrieval-augmented generation system for querying JPMorgan Chase's 10-K SEC f
 ## Stack
 
 - **LLM:** Claude (Anthropic)
-- **Orchestration:** LangGraph (query rewriting)
+- **Orchestration:** LangGraph — query rewriting, retrieval, generation, and validation nodes with conditional re-retrieval routing
 - **Reranking:** Cohere
 - **Vector store:** ChromaDB
-- **Embeddings:** Sentence Transformers
+- **Embeddings:** Sentence Transformers (HuggingFace)
+- **Evaluation:** RAGAS over a labeled answerable/unanswerable set
+- **Tool interface:** MCP (Model Context Protocol) — the query path is exposed as an MCP tool
+- **Observability:** LangSmith tracing + custom per-node logging (latency, token cost, rerank scores)
+- **CI:** GitHub Actions — evaluation gate on Faithfulness
 - **Frontend:** Streamlit
 - **Deployment:** HuggingFace Spaces (Docker)
 
@@ -32,15 +36,24 @@ A retrieval-augmented generation system for querying JPMorgan Chase's 10-K SEC f
 
 ![RAG Pipeline](./rag_pipeline.svg)
 
-## Evaluation
-
-Evaluated using RAGAS on 10 questions: 5 answerable from indexed data, 5 outside the indexed excerpt.
+The pipeline is a LangGraph DAG. A query first passes through a **rewriting** node, then **retrieval** (ChromaDB) and **Cohere reranking**, then **generation** with Claude. A **validation** node scores how grounded the generated answer is in the retrieved chunks (0–1); if the score falls below 0.7 and retries remain (≤3), the graph routes back to retrieval, otherwise it terminates. The query path is also surfaced as an **MCP tool** so the system can be called as a tool inside an agentic workflow.
 
 ---
 
+## MCP tool
+
+The retrieval-and-answer path is exposed over the Model Context Protocol, so an external agent can call SEC RAG as a tool rather than embedding the pipeline directly. This keeps the RAG system as a self-contained, independently evaluable capability that an orchestrating agent can invoke alongside other tools.
+
+---
+
+## Evaluation
+
+Evaluated with RAGAS on 10 questions: 5 answerable from the indexed excerpt, 5 outside it. Each phase isolates one change so its effect on the metrics is attributable.
+
+> **Reading the metrics:** Answer Relevancy is 0.0 for unanswerable questions *by design* — the model correctly responds "I don't have that information," which RAGAS scores as irrelevant. This drags the overall average down regardless of retrieval quality, so answerable-subset numbers are the meaningful signal for retrieval changes.
+
 ### Phase 1 — No query rewriting, no reranking
 
-### Eval Scores
 | Metric | Answerable | Unanswerable |
 |--------|-----------|--------------|
 | Faithfulness | 1.000 | 0.893 |
@@ -48,42 +61,24 @@ Evaluated using RAGAS on 10 questions: 5 answerable from indexed data, 5 outside
 | Context Precision | 0.500 | 0.628 |
 | Context Recall | 0.800 | 0.800 |
 
-Findings
+**Findings**
 
-**Faithfulness (0.893 unanswerable):** Fallback instruction works but 
-model occasionally adds unsupported suggestions (e.g. "refer to capital 
-management section"). Its not in retrieved context — genuine faithfulness 
-failure. Fix is to add stricter fallback instruction.
-
-**Answer Relevancy (0.0 unanswerable):** This is because some fallback answers 
-reference what IS in the document rather than addressing the question. 
-This is a known RAGAS limitation on fallback responses, not a model failure.
-
-**Context Precision (0.50 answerable):** Retrieved chunks contain 
-significant irrelevant content. 500 token chunks are probably too large. This means relevant 
-information shares chunks with noise. 
-
-**Context Recall (0.0 — business segments):** Retrieval failure on an 
-answerable question. Segment information exists in indexed data but 
-ChromaDB probably returned wrong chunks. This is likely caused by chunking splitting 
-the segment description across chunk boundaries.
-
-Limitations
-- Scores have run-to-run variance due to LLM-based evaluation
-- Unanswerable ground truths artificially influence recall scores
-- 100KB truncation excludes financial statements — revenue, capital 
-  ratios, and income figures are not evaluable from this dataset
+- **Faithfulness (0.893 unanswerable):** The fallback instruction works, but the model occasionally adds unsupported suggestions (e.g. "refer to capital management section") that aren't in the retrieved context — a genuine faithfulness failure. Fix: stricter fallback instruction.
+- **Answer Relevancy (0.0 unanswerable):** Some fallback answers reference what *is* in the document rather than addressing the question. Known RAGAS limitation on fallback responses, not a model failure.
+- **Context Precision (0.50 answerable):** Retrieved chunks carry significant irrelevant content. 500-token chunks are likely too large, so relevant information shares a chunk with noise.
+- **Context Recall (segments question):** Retrieval failure on an answerable question — segment information exists in the indexed data but the wrong chunks were returned, likely because chunking split the segment description across boundaries.
 
 ### Phase 2 — LangGraph query rewriter, no reranking
 
-| Metric | Answerable | Unanswerable | Overall
+| Metric | Answerable | Unanswerable | Overall |
 |---|---|---|----|
-| Faithfulness | 0.800 | 0.920 | 0.860
-| Answer Relevancy | 0.771 | 0.000 | 0.385
-| Context Precision | 0.533 | 0.500 | 0.517
-| Context Recall | 0.800 | 0.800 | 0.800
+| Faithfulness | 0.800 | 0.920 | 0.860 |
+| Answer Relevancy | 0.771 | 0.000 | 0.385 |
+| Context Precision | 0.533 | 0.500 | 0.517 |
+| Context Recall | 0.800 | 0.800 | 0.800 |
 
-Per Question breakdown
+**Per-question breakdown**
+
 | Question | Faithfulness | Answer Relevancy | Context Precision | Context Recall | Answerable |
 |---|---|---|---|---|---|
 | Where is JPMorgan Chase headquartered? | 1.00 | 0.986 | 1.000 | 1.0 | Yes |
@@ -97,9 +92,7 @@ Per Question breakdown
 | What is JPMorgan Chase's total revenue for 2025? | 1.00 | 0.000 | 0.417 | 1.0 | No |
 | What is JPMorgan Chase's return on equity? | 0.60 | 0.000 | 0.639 | 1.0 | No |
 
-Note: Answer Relevancy is 0.0 for unanswerable questions by design — the model correctly responds with "I don't have that information" which RAGAS scores as irrelevant.
-
-### Phase 3 — LangGraph query rewriter + Cohere reranking
+### Phase 3 — Query rewriter + Cohere reranking
 
 | Metric | Before | After | Change |
 |---|---|---|---|
@@ -108,21 +101,16 @@ Note: Answer Relevancy is 0.0 for unanswerable questions by design — the model
 | Context Precision | 0.517 | 0.642 | +0.125 |
 | Context Recall | 0.800 | 0.800 | flat |
 
-Reranking improved context precision (+0.125) and faithfulness (+0.070), which means that the chunks passed to Claude became more relevant and the answers stayed closer to the source document.
+Reranking improved context precision (+0.125) and faithfulness (+0.070): the chunks passed to Claude became more relevant and answers stayed closer to the source. Context recall was unaffected — reranking reorders existing chunks but retrieves no new ones, so coverage is unchanged. Answer relevancy stayed flat (answerable: 0.771 → 0.773); the unanswerable questions continue to score 0 by design.
 
-Context recall was unaffected — reranking reorders existing chunks but doesn't retrieve new ones, so coverage stayed the same.
-
-Answer relevancy remained flat as well. For answerable questions it was essentially unchanged (0.771 → 0.773). The unanswerable questions continue to score 0 by implementation, dragging the overall average down regardless of retrieval quality.
-
-Q2 (business segments) continues to fail on both context precision and recall — this is likely a document coverage issue, not a retrieval issue. The relevant content may not be present in the indexed excerpt. (Still need to test with varying chunks, and overlap)
+The business-segments question still fails on both context precision and recall — likely a document-coverage issue (the content may not be in the indexed excerpt) rather than a retrieval issue. Still to test: varying chunk size and overlap.
 
 | Answerable | Faithfulness | Answer Relevancy | Context Precision | Context Recall |
 |---|---|---|---|---|
 | Yes | 0.900 | 0.773 | 0.700 | 0.800 |
 | No | 0.960 | 0.000 | 0.583 | 0.800 |
 
-
-### Phase 4 — Chunk size experiment
+### Phase 4 — Chunk-size experiment
 
 | Metric | Baseline (500/50) | 256/26 | 512/51 | 1024/102 |
 |---|---|---|---|---|
@@ -131,34 +119,47 @@ Q2 (business segments) continues to fail on both context precision and recall �
 | Context Precision | 0.642 | 0.850 | 0.700 | 0.850 |
 | Context Recall | 0.800 | 0.900 | 0.800 | 0.900 |
 
-Chunk Size Tradeoffs
+**Chunk-size tradeoffs**
 
-Small chunks (256): retrieval is enhanced and precise, but more chunks passed to LLM increases middle problem risk (performs worse if context is in the middle)  
-Medium chunks (512): worst of both worlds in this dataset — splits content across boundaries losing context and necessary overlap  
-Large chunks (1024): less precise retrieval but richer context per chunk, this increases faithfulness  
+- **Small (256):** precise retrieval, but more chunks reach the LLM, raising lost-in-the-middle risk.
+- **Medium (512):** worst of both here — splits content across boundaries and loses needed overlap.
+- **Large (1024):** less precise retrieval but richer context per chunk, which raises faithfulness.
 
-> Final config: 1024/102 — prioritize faithfulness, which is the critical metric for a SEC filing assistant.
+> **Final config: 1024/102** — prioritizing faithfulness, the critical metric for a SEC-filing assistant.
 
-Known Limitations
+### Phase 5 — Validator node with conditional re-retrieval
 
-- RAGAS scores have run-to-run variance due to LLM-based evaluation
-- Unanswerable ground truths artificially suppress recall scores
-- Indexed excerpt is 100KB — financial statements (revenue, capital ratios, income) are not evaluable from this dataset
-- Business segments question fails on both precision and recall — likely a document coverage issue, not a retrieval issue
-
-
-### Phase 4 — Multi Agent validator node
-
-Added a validator agent (Claude) that scores how grounded the answer is in the retrieved chunks ranging from 0-1. If the score is less than 0.7 and retries <= 3, graph routes back to retrieve. Otherwise it ends. It is an important addition because a wrong or hallucinated figure has real consequences. The validator catches answers that aren't supported by the retrieved text before they reach the user.
+Added a validator node (Claude) that scores how grounded the answer is in the retrieved chunks (0–1). If the score is below 0.7 and retries ≤ 3, the graph routes back to retrieval; otherwise it terminates. This matters because a hallucinated figure in a financial-filing assistant has real consequences — the validator catches unsupported answers before they reach the user.
 
 | Metric | Phase 4 | Phase 5 | Change |
 |--------|---------|---------|--------|
-| Faithfulness | 1.000 | 0.980 | -0.020 |
+| Faithfulness | 1.000 | 0.980 | −0.020 |
 | Answer Relevancy | 0.434 | 0.489 | +0.055 |
 | Context Precision | 0.850 | 0.889 | +0.039 |
 | Context Recall | 0.900 | 0.900 | flat |
 
-Faithfulness dropped slightly probably because of run-to-run variance. Its not a regression. Answer relevancy and context precision have improved.
+The small faithfulness dip is within run-to-run variance, not a regression. Answer relevancy and context precision both improved.
+
+---
+
+## Semantic cache — evaluation finding (not a shipped optimization)
+
+I prototyped a semantic cache over final answers (brute-force cosine similarity against an in-memory store, serving a cached answer when max similarity ≥ threshold) and, rather than assume it worked, built an **LLM-judge harness** over a labeled calibration set of query pairs to test whether cache "hits" are actually *answer-equivalent*.
+
+**The finding:** embedding similarity captures **topical overlap, not answer-equivalence.** Across every embedding model tested, a directional entity-role swap (a pair with the same entities but a reversed relationship, and therefore a *different* correct answer) ranked as the *most* similar pair, while the hardest genuine paraphrase ranked *least* similar. A similarity-only cache would therefore serve confidently wrong answers on exactly the pairs it's most sure about.
+
+At the calibration threshold, the gate admitted essentially no true-paraphrase pairs, so the naive cost/latency case for the cache does not hold on this corpus. The cache is retained here as an evaluation study — a demonstration that a plausible optimization has to be validated before it's trusted — not as a claimed performance win.
+
+> These cache figures come from a separate calibration experiment; confirm the exact numbers against your experiment output before treating them as final.
+
+---
+
+## CI/CD & observability
+
+- **GitHub Actions gate:** the RAGAS evaluation runs in CI and gates on Faithfulness (≥0.85) across the answerable subset, so a retrieval or prompt change that regresses grounding blocks the PR.
+- **LangSmith tracing:** every node is traced, with custom logging of latency, token cost, and Cohere rerank scores for per-node profiling and debugging.
+
+---
 
 ## Setup
 
@@ -179,3 +180,12 @@ streamlit run app.py
 - Python 3.11 (via Dockerfile — `runtime.txt` is ignored by HF Spaces)
 - Secrets: `ANTHROPIC_API_KEY`, `COHERE_API_KEY` set as HF Space secrets
 - Vector store builds at runtime — `chroma_db/` is not committed
+
+---
+
+## Known limitations
+
+- RAGAS scores have run-to-run variance due to LLM-based evaluation.
+- Unanswerable ground truths artificially suppress recall and pull the overall averages down; answerable-subset numbers are the meaningful signal.
+- The indexed excerpt is ~100KB — financial statements (revenue, capital ratios, income) are truncated out and not evaluable from this dataset.
+- The business-segments question fails on both precision and recall, likely a document-coverage issue rather than a retrieval one.
