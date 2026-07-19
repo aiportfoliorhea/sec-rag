@@ -148,7 +148,7 @@ I prototyped a semantic cache over final answers (brute-force cosine similarity 
 
 **The finding:** embedding similarity captures **topical overlap, not answer-equivalence.** Across every embedding model tested, a directional entity-role swap (a pair with the same entities but a reversed relationship, and therefore a *different* correct answer) ranked as the *most* similar pair, while the hardest genuine paraphrase ranked *least* similar. A similarity-only cache would therefore serve confidently wrong answers on exactly the pairs it's most sure about.
 
-At the calibration threshold, the gate admitted essentially no true-paraphrase pairs, so the naive cost/latency case for the cache does not hold on this corpus. The cache is retained here as an evaluation study - a demonstration that a plausible optimization has to be validated before it's trusted — not as a claimed performance win.
+At the calibration threshold, the gate admitted essentially no true-paraphrase pairs, so the naive cost/latency case for the cache does not hold on this corpus. The cache is retained here as an evaluation study - a demonstration that a plausible optimization has to be validated before it's trusted - not as a claimed performance win.
 
 ---
 
